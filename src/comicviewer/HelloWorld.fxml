@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.embed.swing.*?>
+<?import comicviewer.* ?>
+
+<StackPane fx:controller="comicviewer.HelloWorldController" xmlns:fx="http://javafx.com/fxml" fx:id="pane" id="pane">
+	<PDFNode fx:id="pdf" id="pdf"></PDFNode>
+</StackPane>
