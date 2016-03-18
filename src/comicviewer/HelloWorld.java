@@ -1,3 +1,4 @@
+package comicviewer;
 import javafx.application.*;
 import javafx.stage.*;
 import javafx.scene.*;
@@ -14,7 +15,7 @@ public class HelloWorld extends Application{
 	
 	@Override
 	public void start(Stage stage) throws IOException{
-		Parent parent = FXMLLoader.load(getClass().getResource("layouts/HelloWorld.fxml"));
+		Parent parent = FXMLLoader.load(getClass().getResource("HelloWorld.fxml"));
 		parent.getStylesheets().add("stylesheets/HelloWorld.css");
 		Scene scene = new Scene(parent);
 		stage.setScene(scene);
