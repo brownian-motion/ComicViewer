@@ -1,23 +1,13 @@
 package comicviewer;
 
 import javafx.embed.swing.SwingFXUtils;
-import javafx.embed.swing.SwingNode;
-import javafx.geometry.Bounds;
 import javafx.scene.image.*;
-import javafx.scene.paint.Color;
-import javafx.stage.FileChooser;
-import javafx.scene.layout.*;
-
-import javax.swing.*;
-
 import java.nio.*;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.io.*;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.ImageObserver;
 import java.awt.Graphics2D;
-//import java.awt.Image;
 import java.awt.Dimension;
 
 import com.sun.pdfview.*;
@@ -69,13 +59,13 @@ public class PDFNode extends ImageView{
 			clear();
 			return;
 		}
-		//TODO: finish writing this so that it encapsulates setting up a file
-		try{
-			RandomAccessFile file = new RandomAccessFile( fileToOpen, "r");
+		//Try to open the file to read from a PDF. Auto-close in try/catch
+		try(RandomAccessFile file = new RandomAccessFile(fileToOpen, "r")){
 			FileChannel channel = file.getChannel();
 			ByteBuffer buffer = channel.map(MapMode.READ_ONLY, 0, channel.size());
 			pdfFile = new PDFFile(buffer);
 			setPageNumber(0);
+			file.close();
 		} catch (IOException|NullPointerException e){
 			System.err.println("Error loading a pdf to display.");
 			e.printStackTrace();
@@ -141,8 +131,7 @@ public class PDFNode extends ImageView{
 		currentPage = pdfFile.getPage(pageIndex);
 		Rectangle2D pageBox = currentPage.getPageBox();			
 		Dimension realPageSize = currentPage.getUnstretchedSize((int)pageBox.getWidth(), (int)pageBox.getHeight(), pageBox);
-		ImageObserver label = new java.awt.Label();
-		java.awt.Image awtImage = currentPage.getImage(realPageSize.width, realPageSize.height, pageBox, label);
+		java.awt.Image awtImage = currentPage.getImage(realPageSize.width, realPageSize.height, pageBox, null);
 		currentImage = toFXImage(awtImage,currentImage);
 		this.setImage(currentImage);
 	}
