@@ -19,7 +19,7 @@ public class HelloWorld extends Application{
 	final int SCENE_WIDTH = 1500;
 	@Override
 	public void start(Stage stage) throws IOException{
-		stage.setResizable(false);
+//		stage.setResizable(false);
 		BorderPane root = new BorderPane();
 		
 		HBox hbox = new HBox();

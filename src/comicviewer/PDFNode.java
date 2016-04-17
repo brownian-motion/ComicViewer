@@ -107,18 +107,7 @@ public class PDFNode extends ImageView{
 	 * It should only be run once, when the object is first being created.
 	 */
 	private void initialize(){
-//		imageView = new ImageView();
 		this.setStyle("-fx-background-color: yellow;");
-//		label = new JLabel();
-//		label.setBackground(java.awt.Color.GREEN);
-//		SwingUtilities.invokeLater( () -> setContent(label) );
-//		boundsInParentProperty().addListener( (b, oldBounds, newBounds) -> {
-//			Bounds parentBounds = getParent().getLayoutBounds();
-//			zoomToFit(parentBounds.getWidth(), parentBounds.getHeight());
-//			super.resize(label.getWidth(), label.getHeight());
-//			System.out.println(newBounds);
-//		});
-//		this.setBackground( new Background( new BackgroundFill(Color.GRAY,null,null) ) ); //kinda tedious, but it sets the background to be gray
 	}
 	
 	/**
@@ -127,32 +116,15 @@ public class PDFNode extends ImageView{
 	public void clear(){
 		pdfFile = null;
 		currentPage = null;
-//		label.removeAll();
-		//imageView.setImage(null);
 	}
 	
 	@Override
-	public void resize(double width, double height){		System.out.printf("Resizing to %.0fx%.0f\n",width,height);
-//		if(currentImageIcon != null)
-//			zoomToFit(width, height);
+	public void resize(double width, double height){
+		System.out.printf("Resizing to %.0fx%.0f\n",width,height);
 		super.resize(width, height);
+		if(currentImage!=null)
+			System.out.printf("Image is %.0fx%.0f\n",currentImage.getWidth(), currentImage.getHeight());
 	}
-	
-//	public void zoomToFit(double width, double height){
-//		if(width == 0 || height == 0)
-//			return;
-//		if(width / height > currentImageIcon.getIconWidth()/currentImageIcon.getIconHeight()){
-//			//container is wider than the image, match the heights
-//			int newWidth = (int)(height * currentImageIcon.getIconWidth())/currentImageIcon.getIconHeight();
-//			label.setSize(new Dimension(newWidth, (int) height));
-//			currentImageIcon.setImage(currentImage.getScaledInstance(newWidth, (int)height, Image.SCALE_FAST));
-//		} else {
-//			//container is taller than the image, match the widths
-//			int newHeight = (int)(width * currentImageIcon.getIconHeight()/currentImageIcon.getIconWidth());
-//			label.setSize((int) width, newHeight);
-//			currentImageIcon.setImage(currentImage.getScaledInstance((int)width, newHeight, Image.SCALE_FAST));
-//		}
-//	}
 	
 	/**
 	 * Displays the specified page
@@ -173,14 +145,6 @@ public class PDFNode extends ImageView{
 		java.awt.Image awtImage = currentPage.getImage(realPageSize.width, realPageSize.height, pageBox, label);
 		currentImage = toFXImage(awtImage,currentImage);
 		this.setImage(currentImage);
-//		label.setIcon( currentImageIcon = new ImageIcon(currentImage) );
-//		System.out.println(currentImage);
-//		resize(currentImageIcon.getIconWidth(), currentImageIcon.getIconHeight());
-//		SwingUtilities.invokeLater( ()-> {
-//			Bounds layoutBounds = getLayoutBounds();
-//			System.out.println(layoutBounds);
-//			zoomToFit(layoutBounds.getWidth(), layoutBounds.getHeight());
-//		});
 	}
 	
 	/**
