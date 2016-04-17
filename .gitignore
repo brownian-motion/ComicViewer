@@ -1,1 +1,6 @@
 /bin/
+*.zip
+.classpath
+.project
+PDFRenderer-full-0.9.1/
+.settings

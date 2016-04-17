@@ -1,24 +1,18 @@
 package comicviewer;
 
-import javafx.embed.swing.SwingNode;
-import javafx.geometry.Bounds;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.*;
-import javafx.scene.paint.Color;
-import javafx.stage.FileChooser;
-import javafx.scene.layout.*;
-
-import javax.swing.*;
-
 import java.nio.*;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.io.*;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.ImageObserver;
-import java.awt.Image;
+import java.awt.Graphics2D;
 import java.awt.Dimension;
 
 import com.sun.pdfview.*;
+
+import java.awt.image.BufferedImage;
 
 /**
  * This is a class intended to function as a controllable Node in JavaFX that displays PDF.
@@ -29,16 +23,15 @@ import com.sun.pdfview.*;
  *
  */
 
-//TODO: resize the displayed image automatically as this container resizes
 
-public class PDFNode extends SwingNode {
+public class PDFNode extends ImageView{
 	
 //	private ImageView imageView;
 	private PDFFile pdfFile;
 	private PDFPage currentPage;
-	private JLabel label;
-	private Image currentImage;
-	private ImageIcon currentImageIcon;
+//	private JLabel label;
+	private WritableImage currentImage;
+//	private ImageIcon currentImageIcon;
 	
 	
 	//This initializer block runs before the constructor.
@@ -66,13 +59,13 @@ public class PDFNode extends SwingNode {
 			clear();
 			return;
 		}
-		//TODO: finish writing this so that it encapsulates setting up a file
-		try{
-			RandomAccessFile file = new RandomAccessFile( fileToOpen, "r");
+		//Try to open the file to read from a PDF. Auto-close in try/catch
+		try(RandomAccessFile file = new RandomAccessFile(fileToOpen, "r")){
 			FileChannel channel = file.getChannel();
 			ByteBuffer buffer = channel.map(MapMode.READ_ONLY, 0, channel.size());
 			pdfFile = new PDFFile(buffer);
 			setPageNumber(0);
+			file.close();
 		} catch (IOException|NullPointerException e){
 			System.err.println("Error loading a pdf to display.");
 			e.printStackTrace();
@@ -104,17 +97,7 @@ public class PDFNode extends SwingNode {
 	 * It should only be run once, when the object is first being created.
 	 */
 	private void initialize(){
-//		imageView = new ImageView();
-		label = new JLabel();
-		label.setBackground(java.awt.Color.GRAY);
-		SwingUtilities.invokeLater( () -> setContent(label) );
-		boundsInParentProperty().addListener( (b, oldBounds, newBounds) -> {
-			Bounds parentBounds = getParent().getLayoutBounds();
-			zoomToFit(parentBounds.getWidth(), parentBounds.getHeight());
-			super.resize(label.getWidth(), label.getHeight());
-			System.out.println(newBounds);
-		});
-//		this.setBackground( new Background( new BackgroundFill(Color.GRAY,null,null) ) ); //kinda tedious, but it sets the background to be gray
+		this.setStyle("-fx-background-color: yellow;");
 	}
 	
 	/**
@@ -123,31 +106,14 @@ public class PDFNode extends SwingNode {
 	public void clear(){
 		pdfFile = null;
 		currentPage = null;
-		label.removeAll();
-		//imageView.setImage(null);
 	}
 	
 	@Override
 	public void resize(double width, double height){
-		if(currentImageIcon != null)
-			zoomToFit(width, height);
+		System.out.printf("Resizing to %.0fx%.0f\n",width,height);
 		super.resize(width, height);
-	}
-	
-	public void zoomToFit(double width, double height){
-		if(width == 0 || height == 0)
-			return;
-		if(width / height > currentImageIcon.getIconWidth()/currentImageIcon.getIconHeight()){
-			//container is wider than the image, match the heights
-			int newWidth = (int)(height * currentImageIcon.getIconWidth())/currentImageIcon.getIconHeight();
-			label.setSize(new Dimension(newWidth, (int) height));
-			currentImageIcon.setImage(currentImage.getScaledInstance(newWidth, (int)height, Image.SCALE_FAST));
-		} else {
-			//container is taller than the image, match the widths
-			int newHeight = (int)(width * currentImageIcon.getIconHeight()/currentImageIcon.getIconWidth());
-			label.setSize((int) width, newHeight);
-			currentImageIcon.setImage(currentImage.getScaledInstance((int)width, newHeight, Image.SCALE_FAST));
-		}
+		if(currentImage!=null)
+			System.out.printf("Image is %.0fx%.0f\n",currentImage.getWidth(), currentImage.getHeight());
 	}
 	
 	/**
@@ -165,12 +131,9 @@ public class PDFNode extends SwingNode {
 		currentPage = pdfFile.getPage(pageIndex);
 		Rectangle2D pageBox = currentPage.getPageBox();			
 		Dimension realPageSize = currentPage.getUnstretchedSize((int)pageBox.getWidth(), (int)pageBox.getHeight(), pageBox);
-		currentImage = currentPage.getImage(realPageSize.width, realPageSize.height, pageBox, label);
-		label.setIcon( currentImageIcon = new ImageIcon(currentImage) );
-		SwingUtilities.invokeLater( ()-> {
-			Bounds layoutBounds = getLayoutBounds();
-			zoomToFit(layoutBounds.getWidth(), layoutBounds.getHeight());
-		});
+		java.awt.Image awtImage = currentPage.getImage(realPageSize.width, realPageSize.height, pageBox, null);
+		currentImage = toFXImage(awtImage,currentImage);
+		this.setImage(currentImage);
 	}
 	
 	/**
@@ -189,5 +152,33 @@ public class PDFNode extends SwingNode {
 	public boolean isResizable(){
 		return true;
 	}
+	
+	/**
+	 * Converts a given Image into a BufferedImage
+	 *
+	 * @param img The Image to be converted
+	 * @return The converted BufferedImage
+	 */
+	public static java.awt.image.BufferedImage toBufferedImage(java.awt.Image img)
+	{
+	    if (img instanceof BufferedImage)
+	    {
+	        return (BufferedImage) img;
+	    }
 
+	    // Create a buffered image with transparency
+	    BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+
+	    // Draw the image on to the buffered image
+	    Graphics2D bGr = bimage.createGraphics();
+	    bGr.drawImage(img, 0, 0, null);
+	    bGr.dispose();
+
+	    // Return the buffered image
+	    return bimage;
+	}
+	
+	public static WritableImage toFXImage(java.awt.Image img, WritableImage buffer){
+		return SwingFXUtils.toFXImage(toBufferedImage(img), buffer);
+	}
 }
