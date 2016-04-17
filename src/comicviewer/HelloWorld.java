@@ -20,7 +20,7 @@ public class HelloWorld extends Application{
 	@Override
 	public void start(Stage stage) throws IOException{
 		stage.setResizable(false);
-		StackPane root = new StackPane();
+		BorderPane root = new BorderPane();
 		
 		HBox hbox = new HBox();
 		hbox.setMaxSize(400, 35);
@@ -44,6 +44,23 @@ public class HelloWorld extends Application{
 		
 		final MenuItem open = new MenuItem("Open Comic");
 		open.setOnAction(e -> {
+			if (!root.getChildren().contains(node))
+			{
+				System.out.println("i am adding a node");
+				ScrollPane nodeBox = new ScrollPane();
+				nodeBox.setFitToWidth(true);
+				nodeBox.setFitToHeight(true);
+				nodeBox.setContent(node);
+//				Button button = new Button("wat");
+//				button.setStyle("-fx-background-color: #0FF;");
+//				nodeBox.setContent(button);
+				nodeBox.setStyle("-fx-background-color: purple;");
+				node.setStyle("-fx-background-color: cyan;");
+				root.setCenter(nodeBox);
+				System.out.println( nodeBox.getBoundsInParent() );
+//				StackPane.setAlignment(node, Pos.CENTER);
+			}
+			
 			try{
 				File fileToOpen = getPDFFileChooser().showOpenDialog(null);
 				node.openFile(fileToOpen);
@@ -54,12 +71,7 @@ public class HelloWorld extends Application{
 				System.err.println("Couldn't open the pdf");
 			}
 			
-			if (!root.getChildren().contains(node))
-			{
-				System.out.println("i am adding a node");
-				root.getChildren().add(node);
-				StackPane.setAlignment(node, Pos.CENTER);
-			}
+			
 		});
 		
 		final MenuItem bookmark = new MenuItem("Bookmark");
@@ -86,10 +98,10 @@ public class HelloWorld extends Application{
 		hbox.getChildren().addAll(left, pageNumber, right);
 		hbox.setSpacing(10);
 		hbox.setStyle("-fx-background-color: #780000;");
-		root.getChildren().add(bar);
-		root.getChildren().add(hbox);
-		StackPane.setAlignment(bar, Pos.TOP_CENTER);
-		StackPane.setAlignment(hbox, Pos.BOTTOM_CENTER);
+		root.setTop(bar);
+		root.setBottom(hbox);
+//		StackPane.setAlignment(bar, Pos.TOP_CENTER);
+//		StackPane.setAlignment(hbox, Pos.BOTTOM_CENTER);
 		root.setStyle("-fx-background-color: #336699;");
 		stage.setScene(scene);
 		stage.show();
