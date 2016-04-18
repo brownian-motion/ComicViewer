@@ -17,6 +17,7 @@ import java.io.*;
 public class HelloWorld extends Application{
 	final int SCENE_HEIGHT = 700;
 	final int SCENE_WIDTH = 1500;
+	int numPages = 0;
 	@Override
 	public void start(Stage stage) throws IOException{
 //		stage.setResizable(false);
@@ -32,6 +33,66 @@ public class HelloWorld extends Application{
 		Button left = new Button("Previous Page");
 		Button right = new Button("Next Page");
 		
+		left.setOnAction(new EventHandler<ActionEvent>(){
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				int page = node.getPageNumber();
+				System.out.println("current page: " + page);
+				if (page - 1 == 0)
+				{
+					left.setDisable(true);
+				}
+				try{
+					node.setPageNumber(page - 1);
+					System.out.println("we just set this!!!!" + node.getPageNumber());
+				}
+				catch (PDFException e)
+				{
+					System.out.println("beginning of book was reached. Page Number: " + node.getPageNumber());
+				}
+				
+			//	if (currentPage - 1 == 0)
+			//	{
+			//		left.setDisable(true);
+			//	}
+				
+				right.setDisable(false);
+			}
+			
+		});
+		
+		right.setOnAction(new EventHandler<ActionEvent>(){
+
+			@Override
+			public void handle(ActionEvent event) {
+				//currentPage += 1;
+				//System.out.println("currentPage: " + currentPage);
+				//node.setPageNumber(currentPage);
+				int page = node.getPageNumber();
+				try{
+					node.setPageNumber(page + 1);
+					System.out.println("we are now on this page moving forwards: " + node.getPageNumber());
+				}
+				catch (PDFException e)
+				{
+					System.out.println("end of book was reached");
+				}
+				
+				if (page + 1 == (numPages - 1))
+				{
+					right.setDisable(true);
+				}
+				//if (currentPage + 1 == (numPages - 1))
+				//{
+			//		right.setDisable(true);
+			//	}
+				
+				left.setDisable(false);
+			}
+			
+		});
+		
 		final MenuBar bar = new MenuBar();
 		final Menu file = new Menu( "File" );
 	    final Menu comic = new Menu("Comic");
@@ -46,7 +107,7 @@ public class HelloWorld extends Application{
 		open.setOnAction(e -> {
 			if (!root.getChildren().contains(node))
 			{
-				System.out.println("i am adding a node");
+				//System.out.println("i am adding a node");
 				ScrollPane nodeBox = new ScrollPane();
 				nodeBox.setFitToWidth(true);
 				nodeBox.setFitToHeight(true);
@@ -57,13 +118,17 @@ public class HelloWorld extends Application{
 				nodeBox.setStyle("-fx-background-color: purple;");
 				node.setStyle("-fx-background-color: cyan;");
 				root.setCenter(nodeBox);
-				System.out.println( nodeBox.getBoundsInParent() );
+				//System.out.println( nodeBox.getBoundsInParent() );
 //				StackPane.setAlignment(node, Pos.CENTER);
 			}
 			
 			try{
 				File fileToOpen = getPDFFileChooser().showOpenDialog(null);
 				node.openFile(fileToOpen);
+				numPages = node.getNumPages();
+				System.out.println("page upon open: " + node.getPageNumber());
+				//currentPage = node.getPageNumber();
+				//System.out.println("currentPage on open: " + currentPage);
 //				System.out.println("File opened");
 //				System.out.println(pdf);
 			} catch(IOException exception){
@@ -95,6 +160,7 @@ public class HelloWorld extends Application{
 		bar.getMenus().add( file );
 		bar.getMenus().add(comic);
 		
+		left.setDisable(true);
 		hbox.getChildren().addAll(left, pageNumber, right);
 		hbox.setSpacing(10);
 		hbox.setStyle("-fx-background-color: #780000;");
@@ -117,4 +183,5 @@ public class HelloWorld extends Application{
 		out.getExtensionFilters().add(new ExtensionFilter("PDF Files", "*.pdf"));
 		return out;
 	}
+	
 }
