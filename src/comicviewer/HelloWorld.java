@@ -11,6 +11,7 @@ import javafx.event.*;
 import javafx.fxml.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.input.KeyCode;
 
 import java.io.*;
 
@@ -22,6 +23,7 @@ public class HelloWorld extends Application{
 	Button left = new Button("Previous Page");
 	Button right = new Button("Next Page");
 	MenuItem next = new MenuItem("Next Page");
+	TextField pageNumber = new TextField();
 	final MenuItem previous = new MenuItem("Previous Page");
 	@Override
 	public void start(Stage stage) throws IOException{
@@ -33,8 +35,18 @@ public class HelloWorld extends Application{
 		hbox.setAlignment(Pos.CENTER);
 		Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
 		
-		
-		TextField pageNumber = new TextField();
+		pageNumber.setOnKeyPressed((event) -> { if(event.getCode() == KeyCode.ENTER) {
+			int page;
+			try{
+				page = Integer.parseInt(pageNumber.getText());
+				goToPage(page - 1);
+			}
+			
+			catch(NumberFormatException e)
+			{
+				System.out.println("This wasn't an integer.");
+			}
+		} });
 		
 		left.setOnAction(new EventHandler<ActionEvent>(){
 
@@ -86,10 +98,12 @@ public class HelloWorld extends Application{
 				File fileToOpen = getPDFFileChooser().showOpenDialog(null);
 				node.openFile(fileToOpen);
 				numPages = node.getNumPages();
-				System.out.println("page upon open: " + node.getPageNumber());
+				System.out.println("pages upon open:" + node.getNumPages());
+				System.out.println("Current Page: " + node.getPageNumber());
 				right.setDisable(false);
 				next.setDisable(false);
 				pageNumber.setDisable(false);
+				pageNumber.setText("1");
 				bookmark.setDisable(false);
 	
 			} catch(IOException exception){
@@ -157,18 +171,19 @@ public class HelloWorld extends Application{
 		return out;
 	}
 	
-	public void goToPage(int pageNumber){
+	public void goToPage(int page){
 		
 		try{
-			node.setPageNumber(pageNumber);
-			System.out.println("we just set this!!!!" + node.getPageNumber());
+			node.setPageNumber(page);
+			pageNumber.setText(Integer.toString(page + 1));
+			System.out.println("Current Page: " + node.getPageNumber());
 		}
 		catch (PDFException e)
 		{
 			System.out.println("a book end was reached. Page Number: " + node.getPageNumber());
 		}
 		
-		if (pageNumber - 1 == 0)
+		if (page - 1 == -1)
 		{
 			previous.setDisable(true);
 			left.setDisable(true);
@@ -180,7 +195,7 @@ public class HelloWorld extends Application{
 			left.setDisable(false);
 		}
 		
-		if (pageNumber + 1 == node.getNumPages() - 1)
+		if (page + 1 == node.getNumPages())
 		{
 			next.setDisable(true);
 			right.setDisable(true);

@@ -112,8 +112,9 @@ public class PDFNode extends ImageView{
 	public void resize(double width, double height){
 		//System.out.printf("Resizing to %.0fx%.0f\n",width,height);
 		super.resize(width, height);
-		if(currentImage!=null)
-			System.out.printf("Image is %.0fx%.0f\n",currentImage.getWidth(), currentImage.getHeight());
+		//if(currentImage!=null)
+			
+			//System.out.printf("Image is %.0fx%.0f\n",currentImage.getWidth(), currentImage.getHeight());
 	}
 	
 	/**
