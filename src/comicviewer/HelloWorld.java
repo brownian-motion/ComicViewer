@@ -18,6 +18,7 @@ import java.io.*;
 public class HelloWorld extends Application{
 	final int SCENE_HEIGHT = 700;
 	final int SCENE_WIDTH = 1500;
+	Bookmarking bookmarking = new Bookmarking();
 	int numPages = 0;
 	PDFNode node = new PDFNode();
 	Button left = new Button("Previous Page");
@@ -25,6 +26,7 @@ public class HelloWorld extends Application{
 	MenuItem next = new MenuItem("Next Page");
 	TextField pageNumber = new TextField();
 	final MenuItem previous = new MenuItem("Previous Page");
+	String name;
 	@Override
 	public void start(Stage stage) throws IOException{
 //		stage.setResizable(false);
@@ -79,7 +81,12 @@ public class HelloWorld extends Application{
 		previous.setOnAction(e -> {});
 		
 		final MenuItem bookmark = new MenuItem("Bookmark");
-		bookmark.setOnAction(e -> {});
+		bookmark.setOnAction(e -> {try {
+			bookmarking.setBookmark(name, node.getPageNumber());
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}});
 		
 		final MenuItem open = new MenuItem("Open Comic");
 		open.setOnAction(e -> {
@@ -96,25 +103,28 @@ public class HelloWorld extends Application{
 			
 			try{
 				File fileToOpen = getPDFFileChooser().showOpenDialog(null);
-				node.openFile(fileToOpen);
+				name = fileToOpen.getName();
+				System.out.println("The name of the file is: " + name);
+				int page = bookmarking.getBookmark(name);
+				node.openFile(fileToOpen, page);
+				if (page != 0)
+				{
+					left.setDisable(false);
+				}
 				numPages = node.getNumPages();
-				System.out.println("pages upon open:" + node.getNumPages());
-				System.out.println("Current Page: " + node.getPageNumber());
+				//System.out.println("pages upon open:" + node.getNumPages());
+				//System.out.println("Current Page: " + node.getPageNumber());
 				right.setDisable(false);
 				next.setDisable(false);
 				pageNumber.setDisable(false);
-				pageNumber.setText("1");
+				pageNumber.setText(Integer.toString(node.getPageNumber() + 1));
 				bookmark.setDisable(false);
 	
 			} catch(IOException exception){
 				exception.printStackTrace();
 				System.err.println("Couldn't open the pdf");
 			}
-			
-			
 		});
-		
-		
 		
 		final MenuItem darkSide = new MenuItem("Dark Mode");
 		final MenuItem lightSide = new MenuItem("Light Mode");
@@ -176,11 +186,11 @@ public class HelloWorld extends Application{
 		try{
 			node.setPageNumber(page);
 			pageNumber.setText(Integer.toString(page + 1));
-			System.out.println("Current Page: " + node.getPageNumber());
+			//System.out.println("Current Page: " + node.getPageNumber());
 		}
 		catch (PDFException e)
 		{
-			System.out.println("a book end was reached. Page Number: " + node.getPageNumber());
+			//System.out.println("a book end was reached. Page Number: " + node.getPageNumber());
 		}
 		
 		if (page - 1 == -1)
@@ -206,5 +216,4 @@ public class HelloWorld extends Application{
 			right.setDisable(false);
 		}
 	}
-	
 }

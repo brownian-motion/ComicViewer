@@ -54,7 +54,7 @@ public class PDFNode extends ImageView{
 	 * @param fileToOpen	A File object representing a PDF file to display, or null to display nothing.
 	 * @throws IOException	If the file cannot be read.
 	 */
-	public void openFile(File fileToOpen) throws IOException{
+	public void openFile(File fileToOpen, int pageToOpen) throws IOException{
 		if(fileToOpen == null){
 			clear();
 			return;
@@ -64,7 +64,7 @@ public class PDFNode extends ImageView{
 			FileChannel channel = file.getChannel();
 			ByteBuffer buffer = channel.map(MapMode.READ_ONLY, 0, channel.size());
 			pdfFile = new PDFFile(buffer);
-			setPageNumber(0);
+			setPageNumber(pageToOpen);
 			file.close();
 		} catch (IOException|NullPointerException e){
 			System.err.println("Error loading a pdf to display.");

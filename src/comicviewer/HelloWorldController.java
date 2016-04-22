@@ -31,7 +31,7 @@ public class HelloWorldController{
 		pane.setBackground(new Background(new BackgroundFill(javafx.scene.paint.Color.GRAY,null,null)));
 		try{
 			File fileToOpen = getPDFFileChooser().showOpenDialog(null);
-			pdf.openFile(fileToOpen);
+			pdf.openFile(fileToOpen,0);
 //			System.out.println("File opened");
 //			System.out.println(pdf);
 		} catch(IOException e){
