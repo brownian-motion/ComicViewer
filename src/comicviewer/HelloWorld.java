@@ -4,6 +4,7 @@ import javafx.stage.*;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.*;
 import javafx.scene.text.*;
 import javafx.scene.image.*;
@@ -14,6 +15,7 @@ import javafx.geometry.Pos;
 import javafx.scene.input.KeyCode;
 
 import java.io.*;
+import java.util.Optional;
 
 public class HelloWorld extends Application{
 	final int SCENE_HEIGHT = 700;
@@ -26,6 +28,7 @@ public class HelloWorld extends Application{
 	MenuItem next = new MenuItem("Next Page");
 	TextField pageNumber = new TextField();
 	final MenuItem previous = new MenuItem("Previous Page");
+	ScrollPane nodeBox = new ScrollPane();
 	String name;
 	@Override
 	public void start(Stage stage) throws IOException{
@@ -90,15 +93,35 @@ public class HelloWorld extends Application{
 		
 		final MenuItem open = new MenuItem("Open Comic");
 		open.setOnAction(e -> {
-			if (!root.getChildren().contains(node))
+			if (!root.getChildren().contains(nodeBox))
 			{
-				ScrollPane nodeBox = new ScrollPane();
+				System.out.println("a node does not already exist.");
 				nodeBox.setFitToWidth(true);
 				nodeBox.setFitToHeight(true);
 				nodeBox.setContent(node);
 				nodeBox.setStyle("-fx-background-color: purple;");
 				node.setStyle("-fx-background-color: cyan;");
 				root.setCenter(nodeBox);
+			}
+			
+			else
+			{
+				System.out.println("a node already exists");
+				Alert alert = new Alert(AlertType.CONFIRMATION);
+				alert.setTitle("Wait!");
+				alert.setHeaderText("You are closing a comic without saving your place!");
+				alert.setContentText("Would you like me to save this for you?");
+
+				Optional<ButtonType> result = alert.showAndWait();
+				if (result.get() == ButtonType.OK){
+				    try {
+						bookmarking.setBookmark(name, node.getPageNumber());
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+						System.out.println("Bookmarking failed.");
+					}
+				}
 			}
 			
 			try{
@@ -130,7 +153,23 @@ public class HelloWorld extends Application{
 		final MenuItem lightSide = new MenuItem("Light Mode");
 		
 		final MenuItem close = new MenuItem( "Close" );
-		close.setOnAction( (e) -> { stage.close(); } );
+		close.setOnAction( (e) -> { 
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+			alert.setTitle("Wait!");
+			alert.setHeaderText("You are closing a comic without saving your place!");
+			alert.setContentText("Would you like me to save this for you?");
+
+			Optional<ButtonType> result = alert.showAndWait();
+			if (result.get() == ButtonType.OK){
+			    try {
+					bookmarking.setBookmark(name, node.getPageNumber());
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					System.out.println("Bookmarking failed.");
+				}
+			}
+			stage.close(); } );
 		
 		previous.setOnAction((e) -> {
 			int page = node.getPageNumber();
@@ -190,7 +229,12 @@ public class HelloWorld extends Application{
 		}
 		catch (PDFException e)
 		{
-			//System.out.println("a book end was reached. Page Number: " + node.getPageNumber());
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Error");
+			alert.setHeaderText("Invalid Page");
+			alert.setContentText("The page you have requested does not exist.");
+			alert.showAndWait();
+			pageNumber.setText(Integer.toString(node.getPageNumber() + 1));
 		}
 		
 		if (page - 1 == -1)
