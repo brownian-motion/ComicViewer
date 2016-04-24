@@ -48,6 +48,14 @@ public class HelloWorld extends Application{
 		hbox.setAlignment(Pos.CENTER);
 		Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
 		
+		root.setOnKeyPressed((event) -> {
+			if(event.getCode() == KeyCode.PAGE_UP){
+				goToNextPage();
+			} else if(event.getCode() == KeyCode.PAGE_DOWN){
+				goToPreviousPage();
+			}
+		});
+		
 		pageNumber.setOnKeyPressed((event) -> { if(event.getCode() == KeyCode.ENTER) {
 			int page;
 			try{
@@ -61,25 +69,22 @@ public class HelloWorld extends Application{
 			}
 		} });
 		
-		left.setOnAction(new EventHandler<ActionEvent>(){
-
+		//create re-usable event handlers to navigate from page to page
+		final EventHandler<ActionEvent> previousPageNavigationEventHandler = new EventHandler<ActionEvent>(){
 			@Override
 			public void handle(ActionEvent arg0) {
-				int page = node.getPageNumber();
-				goToPage(page);
+				goToPreviousPage();
 			}
-			
-		});
-		
-		right.setOnAction(new EventHandler<ActionEvent>(){
-
+		}, nextPageNavigationEventHandler = new EventHandler<ActionEvent>(){
 			@Override
 			public void handle(ActionEvent event) {
-				int page = node.getPageNumber();
-				goToPage(page + 1);
+				goToNextPage();
 			}
-			
-		});
+		};
+		
+		left.setOnAction(previousPageNavigationEventHandler);
+		
+		right.setOnAction(nextPageNavigationEventHandler);
 		
 		final MenuBar bar = new MenuBar();
 		final Menu file = new Menu( "File" );
@@ -87,9 +92,9 @@ public class HelloWorld extends Application{
 	    
 		
 		next.setVisible(true);
-		next.setOnAction(e -> {});
+		next.setOnAction(nextPageNavigationEventHandler);
 		
-		previous.setOnAction(e -> {});
+		previous.setOnAction(previousPageNavigationEventHandler);
 		
 		final MenuItem bookmark = new MenuItem("Bookmark");
 		bookmark.setOnAction(e -> {try {
@@ -187,14 +192,9 @@ public class HelloWorld extends Application{
 			
 			stage.close(); } );
 		
-		previous.setOnAction((e) -> {
-			int page = node.getPageNumber();
-			goToPage(page);
-		});
-		next.setOnAction((e) -> {
-			int page = node.getPageNumber();
-			goToPage(page);
-		});
+		//redundant:
+//		previous.setOnAction(previousPageNavigationEventHandler);
+//		next.setOnAction(nextPageNavigationEventHandler);
 		
 		file.getItems().add(open);
 		file.getItems().add(darkSide);
@@ -245,7 +245,7 @@ public class HelloWorld extends Application{
 	}
 	
 	/**
-	 * Tries to go to the specified page. Takes no action if that is not possible.
+	 * Tries to go to the specified page. Displays an alert if that is not possible.
 	 * @param page 	The page number to display
 	 */
 	public void goToPage(int page){
@@ -253,7 +253,7 @@ public class HelloWorld extends Application{
 		try{
 			node.setPageNumber(page);
 			pageNumber.setText(Integer.toString(page));
-			//System.out.println("Current Page: " + node.getPageNumber());
+			System.out.println("Current Page: " + node.getPageNumber());
 		}
 		catch (PDFException e)
 		{
@@ -265,27 +265,38 @@ public class HelloWorld extends Application{
 			pageNumber.setText(Integer.toString(node.getPageNumber()));
 		}
 		
-		if (page - 1 == 0)
-		{
+		if (page == 1) {
 			previous.setDisable(true);
 			left.setDisable(true);
-		}
-		
-		else
-		{
+		} else {
 			previous.setDisable(false);
 			left.setDisable(false);
 		}
 		
-		if (page == node.getNumPages())
-		{
+		if (page == node.getNumPages()) {
 			next.setDisable(true);
 			right.setDisable(true);
-		}
-		else
-		{
+		} else {
 			next.setDisable(false);
 			right.setDisable(false);
 		}
+	}
+	
+	/**
+	 * Navigates to the previous page. Takes no action if that page is out of bounds.
+	 */
+	public void goToPreviousPage(){
+		int page = node.getPageNumber();
+		if(page >= 1)
+			goToPage(page - 1);
+	}
+	
+	/**
+	 * Navigates to the next page. Takes no action if that page is out of bounds.
+	 */
+	public void goToNextPage(){
+		int page = node.getPageNumber();
+		if(page <= node.getNumPages())
+			goToPage(page + 1);
 	}
 }
