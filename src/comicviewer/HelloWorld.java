@@ -107,7 +107,7 @@ public class HelloWorld extends Application{
 		final MenuItem open = new MenuItem("Open Comic");
 		open.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
 		open.setOnAction(e -> {
-			if (!root.getChildren().contains(nodeBox))
+			if (!isDisplaying)
 			{
 				System.out.println("a node does not already exist.");
 				nodeBox.setFitToWidth(true);
@@ -124,8 +124,13 @@ public class HelloWorld extends Application{
 				alert.setHeaderText("You are closing a comic without saving your place!");
 				alert.setContentText("Would you like me to save this for you?");
 
+				ButtonType buttonYes = new ButtonType("Yes");
+				ButtonType buttonNo = new ButtonType("No");
+				ButtonType buttonCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+
+				alert.getButtonTypes().setAll(buttonYes, buttonNo, buttonCancel);
 				Optional<ButtonType> result = alert.showAndWait();
-				if (result.get() == ButtonType.OK){
+				if (result.get() == buttonYes){
 				    try {
 						bookmarking.setBookmark(name, node.getPageNumber());
 					} catch (Exception e1) {
@@ -134,24 +139,37 @@ public class HelloWorld extends Application{
 						System.out.println("Bookmarking failed.");
 					}
 				}
+				
+				else if (result.get() == buttonCancel)
+				{
+					return;
+				}
 			}
 			
 			try{
 				isDisplaying = true;
 				File fileToOpen = getPDFFileChooser().showOpenDialog(null);
+				if (fileToOpen == null)
+				{
+					isDisplaying = false;
+				}
 				name = fileToOpen.getName();
 				System.out.println("The name of the file is: " + name);
 				int page = bookmarking.getBookmark(name);
 				node.openFile(fileToOpen, page);
 				if (page != 1)
 				{
+					previous.setDisable(false);
 					left.setDisable(false);
 				}
+				
 				numPages = node.getNumPages();
-				//System.out.println("pages upon open:" + node.getNumPages());
-				//System.out.println("Current Page: " + node.getPageNumber());
-				right.setDisable(false);
-				next.setDisable(false);
+				if (page != numPages)
+				{
+					right.setDisable(false);
+					next.setDisable(false);
+				}
+
 				pageNumber.setDisable(false);
 				pageNumber.setText(Integer.toString(node.getPageNumber()));
 				bookmark.setDisable(false);
@@ -175,9 +193,9 @@ public class HelloWorld extends Application{
 				alert.setContentText("Would you like me to save this for you?");
 				
 				ButtonType buttonYes = new ButtonType("Yes");
-				ButtonType buttonNo = new ButtonType("No", ButtonData.CANCEL_CLOSE);
-
-				alert.getButtonTypes().setAll(buttonYes, buttonNo);
+				ButtonType buttonNo = new ButtonType("No");
+				ButtonType buttonCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+				alert.getButtonTypes().setAll(buttonYes, buttonNo, buttonCancel);
 				Optional<ButtonType> result = alert.showAndWait();
 				if (result.get() == buttonYes){
 				    try {
@@ -187,6 +205,11 @@ public class HelloWorld extends Application{
 						e1.printStackTrace();
 						System.out.println("Bookmarking failed.");
 					}
+				}
+				
+				else if (result.get() == buttonCancel)
+				{
+					return;
 				}
 			}
 			
