@@ -112,14 +112,6 @@ public class PDFNode extends ImageView{
 		currentPage = null;
 	}
 	
-	@Override
-	public void resize(double width, double height){
-		//System.out.printf("Resizing to %.0fx%.0f\n",width,height);
-		super.resize(width, height);
-		//if(currentImage!=null)
-			
-			//System.out.printf("Image is %.0fx%.0f\n",currentImage.getWidth(), currentImage.getHeight());
-	}
 	
 	/**
 	 * Displays the specified page
@@ -132,6 +124,14 @@ public class PDFNode extends ImageView{
 		this.setImage(currentImage);
 	}
 	
+	/**
+	 * Loads and returns the specified page. Throws an error if that page is out of bounds.
+	 * This may be a blank page if the requested page has not been loaded yet.
+	 * 
+	 * @param pageIndex 	The number of the requested page, between 1 and getNumPages() (inclusive)
+	 * @return A JavaFX Image that represents the page.
+	 * @throws PDFException If no PDFFile is loaded, or if the page is out of bounds
+	 */
 	public WritableImage loadPageNumber(int pageIndex){
 		if(pdfFile == null)
 			throw new PDFException("No file is loaded");
@@ -188,6 +188,12 @@ public class PDFNode extends ImageView{
 	    return bimage;
 	}
 	
+	/**
+	 * Converts an AWT Image into a JafaFX Image
+	 * @param img 		An AWT Image
+	 * @param buffer 	A WritableImage to try to draw the AWT image in. May be null.
+	 * @return 			A WritableImage that represents the same data as img
+	 */
 	public static WritableImage toFXImage(java.awt.Image img, WritableImage buffer){
 		return SwingFXUtils.toFXImage(toBufferedImage(img), buffer);
 	}

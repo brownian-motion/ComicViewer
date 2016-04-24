@@ -35,6 +35,10 @@ public class HelloWorld extends Application{
 	ScrollPane nodeBox = new ScrollPane();
 	String name;
 	@Override
+	
+	/**
+	 * Creates the elements that populate the UI, and connects controls.
+	 */
 	public void start(Stage stage) throws IOException{
 //		stage.setResizable(false);
 		BorderPane root = new BorderPane();
@@ -104,8 +108,6 @@ public class HelloWorld extends Application{
 				nodeBox.setFitToWidth(true);
 				nodeBox.setFitToHeight(true);
 				nodeBox.setContent(node);
-				nodeBox.setStyle("-fx-background-color: purple;");
-				node.setStyle("-fx-background-color: cyan;");
 				root.setCenter(nodeBox);
 			}
 			
@@ -223,17 +225,29 @@ public class HelloWorld extends Application{
 		stage.show();
 	}
 	
+	/**
+	 * Launches the application.
+	 * @param args The command-line arguments
+	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		launch(args);
 	}
 	
+	/**
+	 * Returns a FileChooser object that can be used to open only .pdf files
+	 * @return a FileChooser object that can be used to open only .pdf files
+	 */
 	public FileChooser getPDFFileChooser(){
 		FileChooser out = new FileChooser();
 		out.getExtensionFilters().add(new ExtensionFilter("PDF Files", "*.pdf"));
 		return out;
 	}
 	
+	/**
+	 * Tries to go to the specified page. Takes no action if that is not possible.
+	 * @param page 	The page number to display
+	 */
 	public void goToPage(int page){
 		
 		try{
