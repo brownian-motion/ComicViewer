@@ -5,6 +5,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.layout.*;
 import javafx.scene.text.*;
 import javafx.scene.image.*;
@@ -27,6 +28,7 @@ public class HelloWorld extends Application{
 	Button right = new Button("Next Page");
 	MenuItem next = new MenuItem("Next Page");
 	TextField pageNumber = new TextField();
+	boolean isDisplaying = false;
 	final MenuItem previous = new MenuItem("Previous Page");
 	ScrollPane nodeBox = new ScrollPane();
 	String name;
@@ -125,6 +127,7 @@ public class HelloWorld extends Application{
 			}
 			
 			try{
+				isDisplaying = true;
 				File fileToOpen = getPDFFileChooser().showOpenDialog(null);
 				name = fileToOpen.getName();
 				System.out.println("The name of the file is: " + name);
@@ -154,21 +157,29 @@ public class HelloWorld extends Application{
 		
 		final MenuItem close = new MenuItem( "Close" );
 		close.setOnAction( (e) -> { 
-			Alert alert = new Alert(AlertType.CONFIRMATION);
-			alert.setTitle("Wait!");
-			alert.setHeaderText("You are closing a comic without saving your place!");
-			alert.setContentText("Would you like me to save this for you?");
+			if (isDisplaying)
+			{
+				Alert alert = new Alert(AlertType.CONFIRMATION);
+				alert.setTitle("Wait!");
+				alert.setHeaderText("You are closing a comic without saving your place!");
+				alert.setContentText("Would you like me to save this for you?");
+				
+				ButtonType buttonYes = new ButtonType("Yes");
+				ButtonType buttonNo = new ButtonType("No", ButtonData.CANCEL_CLOSE);
 
-			Optional<ButtonType> result = alert.showAndWait();
-			if (result.get() == ButtonType.OK){
-			    try {
-					bookmarking.setBookmark(name, node.getPageNumber());
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-					System.out.println("Bookmarking failed.");
+				alert.getButtonTypes().setAll(buttonYes, buttonNo);
+				Optional<ButtonType> result = alert.showAndWait();
+				if (result.get() == buttonYes){
+				    try {
+						bookmarking.setBookmark(name, node.getPageNumber());
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+						System.out.println("Bookmarking failed.");
+					}
 				}
 			}
+			
 			stage.close(); } );
 		
 		previous.setOnAction((e) -> {
@@ -181,13 +192,13 @@ public class HelloWorld extends Application{
 		});
 		
 		file.getItems().add(open);
-		file.getItems().add(bookmark);
 		file.getItems().add(darkSide);
 		file.getItems().add(lightSide);
 		file.getItems().add( close );
 		
 		comic.getItems().add(next);
 		comic.getItems().add(previous);
+		comic.getItems().add(bookmark);
 	
 		bar.getMenus().add( file );
 		bar.getMenus().add(comic);
