@@ -64,8 +64,12 @@ public class PDFNode extends ImageView{
 			FileChannel channel = file.getChannel();
 			ByteBuffer buffer = channel.map(MapMode.READ_ONLY, 0, channel.size());
 			pdfFile = new PDFFile(buffer);
-			setPageNumber(pageToOpen);
 			file.close();
+			//preload all of the pages
+			for(int i = 1 ; i <= getNumPages(); i++){
+				loadPageNumber(i);
+			}
+			setPageNumber(pageToOpen);
 		} catch (IOException|NullPointerException e){
 			System.err.println("Error loading a pdf to display.");
 			e.printStackTrace();
@@ -120,21 +124,26 @@ public class PDFNode extends ImageView{
 	/**
 	 * Displays the specified page
 	 * 
-	 * @param pageIndex		The index of the requested page, starting from 0.
+	 * @param pageIndex		The index of the requested page, starting from 1.
 	 * @throws PDFException	if no PDFFile is loaded or if the page is out of bounds.
 	 */
 	public void setPageNumber(int pageIndex){
+		currentImage = loadPageNumber(pageIndex);
+		this.setImage(currentImage);
+	}
+	
+	public WritableImage loadPageNumber(int pageIndex){
 		if(pdfFile == null)
 			throw new PDFException("No file is loaded");
-		if(pageIndex < 0 || pageIndex >= pdfFile.getNumPages())
-			throw new PDFException("Error accessing out-of-bounds page number");
+		if(pageIndex <= 0 || pageIndex > pdfFile.getNumPages())
+			throw new PDFException("Error accessing out-of-bounds page number: "+pageIndex);
 		//Do we need to get rid of the previous page object somehow?
 		currentPage = pdfFile.getPage(pageIndex);
 		Rectangle2D pageBox = currentPage.getPageBox();			
 		Dimension realPageSize = currentPage.getUnstretchedSize((int)pageBox.getWidth(), (int)pageBox.getHeight(), pageBox);
+		currentPage.getImage(realPageSize.width, realPageSize.height, pageBox, null); //try to pre-render
 		java.awt.Image awtImage = currentPage.getImage(realPageSize.width, realPageSize.height, pageBox, null);
-		currentImage = toFXImage(awtImage,currentImage);
-		this.setImage(currentImage);
+		return toFXImage(awtImage,currentImage);
 	}
 	
 	/**

@@ -19,7 +19,7 @@ public class Bookmarking {
 	{
 		File bookmarks = new File("Bookmarks.txt");
 		if(!bookmarks.exists()) {
-		    return 0;
+		    return 1;
 		}
 		
 		FileInputStream fileReader = null;

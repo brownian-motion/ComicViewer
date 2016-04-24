@@ -14,6 +14,8 @@ import javafx.fxml.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 
 import java.io.*;
 import java.util.Optional;
@@ -46,7 +48,7 @@ public class HelloWorld extends Application{
 			int page;
 			try{
 				page = Integer.parseInt(pageNumber.getText());
-				goToPage(page - 1);
+				goToPage(page);
 			}
 			
 			catch(NumberFormatException e)
@@ -60,7 +62,7 @@ public class HelloWorld extends Application{
 			@Override
 			public void handle(ActionEvent arg0) {
 				int page = node.getPageNumber();
-				goToPage(page - 1);
+				goToPage(page);
 			}
 			
 		});
@@ -94,6 +96,7 @@ public class HelloWorld extends Application{
 		}});
 		
 		final MenuItem open = new MenuItem("Open Comic");
+		open.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
 		open.setOnAction(e -> {
 			if (!root.getChildren().contains(nodeBox))
 			{
@@ -133,7 +136,7 @@ public class HelloWorld extends Application{
 				System.out.println("The name of the file is: " + name);
 				int page = bookmarking.getBookmark(name);
 				node.openFile(fileToOpen, page);
-				if (page != 0)
+				if (page != 1)
 				{
 					left.setDisable(false);
 				}
@@ -143,7 +146,7 @@ public class HelloWorld extends Application{
 				right.setDisable(false);
 				next.setDisable(false);
 				pageNumber.setDisable(false);
-				pageNumber.setText(Integer.toString(node.getPageNumber() + 1));
+				pageNumber.setText(Integer.toString(node.getPageNumber()));
 				bookmark.setDisable(false);
 	
 			} catch(IOException exception){
@@ -184,11 +187,11 @@ public class HelloWorld extends Application{
 		
 		previous.setOnAction((e) -> {
 			int page = node.getPageNumber();
-			goToPage(page - 1);
+			goToPage(page);
 		});
 		next.setOnAction((e) -> {
 			int page = node.getPageNumber();
-			goToPage(page + 1);
+			goToPage(page);
 		});
 		
 		file.getItems().add(open);
@@ -235,7 +238,7 @@ public class HelloWorld extends Application{
 		
 		try{
 			node.setPageNumber(page);
-			pageNumber.setText(Integer.toString(page + 1));
+			pageNumber.setText(Integer.toString(page));
 			//System.out.println("Current Page: " + node.getPageNumber());
 		}
 		catch (PDFException e)
@@ -245,10 +248,10 @@ public class HelloWorld extends Application{
 			alert.setHeaderText("Invalid Page");
 			alert.setContentText("The page you have requested does not exist.");
 			alert.showAndWait();
-			pageNumber.setText(Integer.toString(node.getPageNumber() + 1));
+			pageNumber.setText(Integer.toString(node.getPageNumber()));
 		}
 		
-		if (page - 1 == -1)
+		if (page - 1 == 0)
 		{
 			previous.setDisable(true);
 			left.setDisable(true);
@@ -260,7 +263,7 @@ public class HelloWorld extends Application{
 			left.setDisable(false);
 		}
 		
-		if (page + 1 == node.getNumPages())
+		if (page == node.getNumPages())
 		{
 			next.setDisable(true);
 			right.setDisable(true);
