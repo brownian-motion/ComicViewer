@@ -180,8 +180,8 @@ public class HelloWorld extends Application{
 			}
 		});
 		
-		final MenuItem darkSide = new MenuItem("Dark Mode");
-		final MenuItem lightSide = new MenuItem("Light Mode");
+		//final MenuItem darkSide = new MenuItem("Dark Mode");
+		//final MenuItem lightSide = new MenuItem("Light Mode");
 		
 		final MenuItem close = new MenuItem( "Close" );
 		close.setOnAction( (e) -> { 
@@ -215,13 +215,9 @@ public class HelloWorld extends Application{
 			
 			stage.close(); } );
 		
-		//redundant:
-//		previous.setOnAction(previousPageNavigationEventHandler);
-//		next.setOnAction(nextPageNavigationEventHandler);
-		
 		file.getItems().add(open);
-		file.getItems().add(darkSide);
-		file.getItems().add(lightSide);
+		//file.getItems().add(darkSide);
+		//file.getItems().add(lightSide);
 		file.getItems().add( close );
 		
 		comic.getItems().add(next);
@@ -240,11 +236,11 @@ public class HelloWorld extends Application{
 		
 		hbox.getChildren().addAll(left, pageNumber, right);
 		hbox.setSpacing(10);
-		hbox.setStyle("-fx-background-color: #780000;");
+		hbox.setStyle("-fx-background-color: #505050;");
 		root.setTop(bar);
 		root.setBottom(hbox);
 		BorderPane.setAlignment(hbox, Pos.BOTTOM_CENTER);
-		root.setStyle("-fx-background-color: #336699;");
+		root.setStyle("-fx-background-color: #000000;");
 		stage.setScene(scene);
 		stage.show();
 	}
