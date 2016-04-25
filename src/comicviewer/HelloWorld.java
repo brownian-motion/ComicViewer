@@ -243,6 +243,7 @@ public class HelloWorld extends Application{
 		hbox.setStyle("-fx-background-color: #780000;");
 		root.setTop(bar);
 		root.setBottom(hbox);
+		BorderPane.setAlignment(hbox, Pos.BOTTOM_CENTER);
 		root.setStyle("-fx-background-color: #336699;");
 		stage.setScene(scene);
 		stage.show();
