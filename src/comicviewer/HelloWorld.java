@@ -65,7 +65,7 @@ public class HelloWorld extends Application{
 			
 			catch(NumberFormatException e)
 			{
-				System.out.println("This wasn't an integer.");
+				System.err.println("This wasn't an integer.");
 			}
 		} });
 		
@@ -107,9 +107,9 @@ public class HelloWorld extends Application{
 		final MenuItem open = new MenuItem("Open Comic");
 		open.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
 		open.setOnAction(e -> {
-			if (!isDisplaying)
+			if (!root.getChildren().contains(nodeBox))
 			{
-				System.out.println("a node does not already exist.");
+				//System.out.println("a node does not already exist.");
 				nodeBox.setFitToWidth(true);
 				nodeBox.setFitToHeight(true);
 				nodeBox.setContent(node);
@@ -118,7 +118,7 @@ public class HelloWorld extends Application{
 			
 			else
 			{
-				System.out.println("a node already exists");
+				//System.out.println("a node already exists");
 				Alert alert = new Alert(AlertType.CONFIRMATION);
 				alert.setTitle("Wait!");
 				alert.setHeaderText("You are closing a comic without saving your place!");
@@ -136,7 +136,7 @@ public class HelloWorld extends Application{
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
-						System.out.println("Bookmarking failed.");
+						System.err.println("Bookmarking failed.");
 					}
 				}
 				
@@ -152,9 +152,18 @@ public class HelloWorld extends Application{
 				if (fileToOpen == null)
 				{
 					isDisplaying = false;
+					node = new PDFNode();
+					right.setDisable(true);
+					left.setDisable(true);
+					next.setDisable(true);
+					previous.setDisable(true);
+					bookmark.setDisable(true);
+					pageNumber.clear();
+					pageNumber.setDisable(true);
+					root.getChildren().remove(nodeBox);
 				}
 				name = fileToOpen.getName();
-				System.out.println("The name of the file is: " + name);
+				//System.out.println("The name of the file is: " + name);
 				int page = bookmarking.getBookmark(name);
 				node.openFile(fileToOpen, page);
 				if (page != 1)
@@ -185,33 +194,33 @@ public class HelloWorld extends Application{
 		
 		final MenuItem close = new MenuItem( "Close" );
 		close.setOnAction( (e) -> { 
-			if (isDisplaying)
-			{
-				Alert alert = new Alert(AlertType.CONFIRMATION);
-				alert.setTitle("Wait!");
-				alert.setHeaderText("You are closing a comic without saving your place!");
-				alert.setContentText("Would you like me to save this for you?");
-				
-				ButtonType buttonYes = new ButtonType("Yes");
-				ButtonType buttonNo = new ButtonType("No");
-				ButtonType buttonCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
-				alert.getButtonTypes().setAll(buttonYes, buttonNo, buttonCancel);
-				Optional<ButtonType> result = alert.showAndWait();
-				if (result.get() == buttonYes){
-				    try {
-						bookmarking.setBookmark(name, node.getPageNumber());
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-						System.out.println("Bookmarking failed.");
-					}
-				}
-				
-				else if (result.get() == buttonCancel)
-				{
-					return;
-				}
-			}
+			 if (isDisplaying)
+	  			{
+	  				Alert alert = new Alert(AlertType.CONFIRMATION);
+	  				alert.setTitle("Wait!");
+	  				alert.setHeaderText("You are closing a comic without saving your place!");
+	  				alert.setContentText("Would you like me to save this for you?");
+	  				
+	  				ButtonType buttonYes = new ButtonType("Yes");
+	  				ButtonType buttonNo = new ButtonType("No");
+	  				ButtonType buttonCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+	  				alert.getButtonTypes().setAll(buttonYes, buttonNo, buttonCancel);
+	  				Optional<ButtonType> result = alert.showAndWait();
+	  				if (result.get() == buttonYes){
+	  				    try {
+	  						bookmarking.setBookmark(name, node.getPageNumber());
+	  					} catch (Exception e1) {
+	  						// TODO Auto-generated catch block
+	  						e1.printStackTrace();
+	  						System.err.println("Bookmarking failed.");
+	  					}
+	  				}
+	  				
+	  				else if (result.get() == buttonCancel)
+	  				{
+	  					return;
+	  				}
+	  			}
 			
 			stage.close(); } );
 		
@@ -242,6 +251,39 @@ public class HelloWorld extends Application{
 		BorderPane.setAlignment(hbox, Pos.BOTTOM_CENTER);
 		root.setStyle("-fx-background-color: #000000;");
 		stage.setScene(scene);
+		
+		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+	          public void handle(WindowEvent we) {
+	        	  if (isDisplaying)
+	  			{
+	  				Alert alert = new Alert(AlertType.CONFIRMATION);
+	  				alert.setTitle("Wait!");
+	  				alert.setHeaderText("You are closing a comic without saving your place!");
+	  				alert.setContentText("Would you like me to save this for you?");
+	  				
+	  				ButtonType buttonYes = new ButtonType("Yes");
+	  				ButtonType buttonNo = new ButtonType("No");
+	  				ButtonType buttonCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+	  				alert.getButtonTypes().setAll(buttonYes, buttonNo, buttonCancel);
+	  				Optional<ButtonType> result = alert.showAndWait();
+	  				if (result.get() == buttonYes){
+	  				    try {
+	  						bookmarking.setBookmark(name, node.getPageNumber());
+	  					} catch (Exception e1) {
+	  						// TODO Auto-generated catch block
+	  						e1.printStackTrace();
+	  						System.err.println("Bookmarking failed.");
+	  					}
+	  				}
+	  				
+	  				else if (result.get() == buttonCancel)
+	  				{
+	  					we.consume();
+	  				}
+	  			}
+	          }
+	      });   
+		
 		stage.show();
 	}
 	
@@ -273,7 +315,7 @@ public class HelloWorld extends Application{
 		try{
 			node.setPageNumber(page);
 			pageNumber.setText(Integer.toString(page));
-			System.out.println("Current Page: " + node.getPageNumber());
+			//System.out.println("Current Page: " + node.getPageNumber());
 		}
 		catch (PDFException e)
 		{
